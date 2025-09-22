@@ -75,7 +75,7 @@
             color: #0056b3;
             text-decoration: underline;
         }
-        /* Fondo de logos flotantes */
+        /* Fondo de logos flotantes - Optimizado */
         .logo-background {
             position: fixed;
             top: 0;
@@ -90,6 +90,8 @@
             width: 80px;
             opacity: 0;
             transition: opacity 1s ease;
+            will-change: opacity, transform; /* GPU accel */
+            pointer-events: none; /* No interfiere con taps */
         }
         .logo.visible {
             opacity: 0.3;
@@ -100,6 +102,15 @@
         @keyframes fadeIn {
             0% { opacity: 0; transform: translateY(-10px); }
             100% { opacity: 1; transform: translateY(0); }
+        }
+        /* Desactivar en mobile o reduced motion */
+        @media (max-width: 768px), (prefers-reduced-motion: reduce) {
+            .logo {
+                display: none !important; /* Quitar logos en mobile para perf */
+            }
+            .logo-background {
+                display: none;
+            }
         }
         @media (max-width: 576px) {
             .dashboard-container {
@@ -113,13 +124,22 @@
                 width: 60px;
             }
         }
+        /* Responsive table para mobile */
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.875rem;
+            }
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Fondo de logos flotantes -->
+    <!-- Fondo de logos flotantes - Solo si hay logos -->
     <div class="logo-background" id="logo-background">
         {% for logo in logos %}
-            <img src="{{ url_for('static', filename=logo) }}" alt="Logo" class="logo">
+            <img src="{{ url_for('static', filename=logo) }}" alt="Logo" class="logo" loading="lazy">
         {% endfor %}
     </div>
 
@@ -137,106 +157,117 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in data %}
+        <div class="table-responsive">  <!-- Wrapper para scroll horizontal en mobile -->
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td>{{ item['_id'] }}</td>
-                        <td>{{ item.get('title', 'Sin título') }}</td>
-                        <td><a href="{{ url_for('detail', id=item['_id']) }}" class="btn btn-primary btn-sm">Ver Detalles</a></td>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Acción</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                        <tr>
+                            <td>{{ item['_id'] }}</td>
+                            <td>{{ item.get('title', 'Sin título') }}</td>
+                            <td><a href="{{ url_for('detail', id=item['_id']) }}" class="btn btn-primary btn-sm">Ver Detalles</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <a href="{{ url_for('logout') }}" class="logout-link">Cerrar Sesión</a>
     </div>
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- JavaScript para animar logos -->
+    <!-- JavaScript para animar logos - Optimizado con throttle y checks -->
     <script>
-        function animateLogos() {
-            const logos = document.querySelectorAll('.logo');
-            const container = document.querySelector('.logo-background');
-            const dashboardContainer = document.querySelector('.dashboard-container');
-            const containerWidth = window.innerWidth;
-            const containerHeight = window.innerHeight;
-            const animationDuration = 10000; // Duración base en ms (10s, ajustable)
+        (function() {  // IIFE
+            // Solo animar si no reduced motion y desktop
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.innerWidth < 769) {
+                return;
+            }
 
-            // Obtener dimensiones y posición del contenedor principal
-            let dashboardRect = dashboardContainer.getBoundingClientRect();
-            let dashboardTop = dashboardRect.top + window.scrollY;
-            let dashboardLeft = dashboardRect.left;
-            let dashboardWidth = dashboardRect.width;
-            let dashboardHeight = dashboardRect.height;
+            function throttle(func, limit) {
+                let inThrottle;
+                return function() {
+                    const args = arguments;
+                    const context = this;
+                    if (!inThrottle) {
+                        func.apply(context, args);
+                        inThrottle = true;
+                        setTimeout(() => inThrottle = false, limit);
+                    }
+                };
+            }
 
-            logos.forEach((logo, index) => {
-                function updateLogo() {
-                    // Calcular posición aleatoria evitando el contenedor
-                    let startX, startY;
-                    do {
-                        startX = Math.random() * (containerWidth - 80);
-                        startY = Math.random() * (containerHeight - 80);
-                    } while (
-                        startX >= dashboardLeft - 80 &&
-                        startX <= dashboardLeft + dashboardWidth &&
-                        startY >= dashboardTop - 80 &&
-                        startY <= dashboardTop + dashboardHeight
-                    );
+            function animateLogos() {
+                const logos = document.querySelectorAll('.logo');
+                if (logos.length === 0) return;
+                const container = document.querySelector('.logo-background');
+                const dashboardContainer = document.querySelector('.dashboard-container');
+                const containerWidth = window.innerWidth;
+                const containerHeight = window.innerHeight;
+                const animationDuration = 15000;  // Aumentado a 15s para menos CPU
 
-                    logo.style.left = `${startX}px`;
-                    logo.style.top = `${startY}px`;
-
-                    // Movimiento suave
-                    const deltaX = (Math.random() - 0.5) * 30; // Movimiento horizontal reducido
-                    const deltaY = (Math.random() - 0.5) * 30; // Movimiento vertical reducido
-                    const moveDuration = animationDuration + index * 2000; // 10-14s por logo
-
-                    // Resetear estado
-                    logo.classList.remove('visible');
-                    logo.style.transition = 'none';
-                    logo.style.transform = 'translate(0, 0) scale(1)';
-
-                    // Iniciar fade-in
-                    setTimeout(() => {
-                        logo.style.transition = 'opacity 1s ease, transform 1s ease';
-                        logo.classList.add('visible');
-                        logo.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.1)`;
-                    }, 100);
-
-                    // Iniciar fade-out después de la mitad de la duración
-                    setTimeout(() => {
-                        logo.classList.remove('visible');
-                    }, moveDuration * 0.6);
-
-                    // Repetir ciclo
-                    setTimeout(updateLogo, moveDuration);
+                function getDashboardBounds() {
+                    const rect = dashboardContainer.getBoundingClientRect();
+                    return {
+                        top: rect.top + window.scrollY,
+                        left: rect.left,
+                        width: rect.width,
+                        height: rect.height
+                    };
                 }
 
-                // Iniciar animación
-                updateLogo();
-            });
+                logos.forEach((logo, index) => {
+                    let animationId;
+                    function updateLogo() {
+                        const bounds = getDashboardBounds();
+                        let startX, startY;
+                        // Menos iteraciones: Max 5 intentos para posición
+                        for (let i = 0; i < 5; i++) {
+                            startX = Math.random() * (containerWidth - 80);
+                            startY = Math.random() * (containerHeight - 80);
+                            if (!(startX >= bounds.left - 80 && startX <= bounds.left + bounds.width &&
+                                  startY >= bounds.top - 80 && startY <= bounds.top + bounds.height)) {
+                                break;
+                            }
+                        }
 
-            // Actualizar dimensiones del contenedor al redimensionar
-            window.addEventListener('resize', () => {
-                dashboardRect = dashboardContainer.getBoundingClientRect();
-                dashboardTop = dashboardRect.top + window.scrollY;
-                dashboardLeft = dashboardRect.left;
-                dashboardWidth = dashboardRect.width;
-                dashboardHeight = dashboardRect.height;
-                animateLogos();
-            });
-        }
+                        requestAnimationFrame(() => {  // Smooth updates
+                            logo.style.left = `${startX}px`;
+                            logo.style.top = `${startY}px`;
+                            logo.classList.add('visible');
+                            const deltaX = (Math.random() - 0.5) * 20;  // Movimiento más sutil
+                            const deltaY = (Math.random() - 0.5) * 20;
+                            logo.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.05)`;
 
-        // Iniciar animación al cargar
-        window.addEventListener('load', animateLogos);
+                            // Fade out después
+                            setTimeout(() => {
+                                logo.classList.remove('visible');
+                            }, animationDuration * 0.7);
+                        });
+
+                        // Reiniciar con delay mayor
+                        setTimeout(updateLogo, animationDuration + index * 3000);
+                    }
+
+                    updateLogo();
+                });
+
+                // Throttle resize: Solo cada 250ms
+                window.addEventListener('resize', throttle(() => {
+                    // Reiniciar solo si necesario
+                    animateLogos();
+                }, 250));
+            }
+
+            // Iniciar al load
+            window.addEventListener('load', animateLogos);
+        })();
     </script>
 </body>
 </html>

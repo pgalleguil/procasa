@@ -51,7 +51,7 @@
             0% { opacity: 0; transform: translateY(-10px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        /* Estilos para el carrusel personalizado */
+        /* Estilos para el carrusel personalizado - Optimizado */
         .background-slider {
             position: absolute;
             top: 0;
@@ -68,6 +68,7 @@
             height: 100%;
             opacity: 0;
             transition: opacity 1s ease-in-out;
+            will-change: opacity; /* GPU accel para mobile */
         }
         .slide.active {
             opacity: 1;
@@ -77,12 +78,29 @@
             width: 100%;
             height: 100vh;
             filter: brightness(0.5);
-            animation: kenburns 10s infinite;
+            /* Ken Burns solo en desktop */
+            animation: none;
         }
         @keyframes kenburns {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
+        }
+        /* Desactivar anims en mobile o reduced motion */
+        @media (max-width: 768px), (prefers-reduced-motion: reduce) {
+            .slide img {
+                animation: none !important;
+                transform: none !important;
+            }
+            .slide {
+                transition: none;
+            }
+        }
+        @media (min-width: 769px) {
+            .slide img {
+                animation: kenburns 10s infinite;
+                will-change: transform;
+            }
         }
         /* Estilo para el título Iniciar Sesión */
         .login-container h2 {
@@ -98,11 +116,11 @@
     </style>
 </head>
 <body>
-    <!-- Carrusel personalizado -->
+    <!-- Carrusel personalizado - Imágenes lazy -->
     <div class="background-slider">
         {% for image in images %}
             <div class="slide {% if loop.first %}active{% endif %}">
-                <img src="{{ url_for('static', filename=image) }}" alt="Propiedad">
+                <img src="{{ url_for('static', filename=image) }}" alt="Propiedad" loading="lazy">
             </div>
         {% endfor %}
     </div>
@@ -110,7 +128,7 @@
     <!-- Contenedor del formulario -->
     <div class="login-container">
         <div class="text-center">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo de la Empresa" class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo de la Empresa" class="logo" loading="lazy">
         </div>
         <h2 class="text-center mb-4">Iniciar Sesión</h2>
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -137,27 +155,35 @@
     </div>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- JavaScript para el carrusel personalizado -->
+    <!-- JavaScript para el carrusel - Optimizado con RAF -->
     <script>
-        const slides = document.querySelectorAll('.slide');
-        let currentSlide = 0;
+        (function() {  // IIFE para scope
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+            let currentSlide = 0;
+            const intervalTime = 5000;  // 5s
 
-        function showSlide(index) {
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
-        }
+            function showSlide(index) {
+                requestAnimationFrame(() => {  // Smooth en mobile
+                    slides.forEach((slide, i) => {
+                        slide.classList.toggle('active', i === index);
+                    });
+                });
+            }
 
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            // Solo interval si no reduced motion
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                setInterval(nextSlide, intervalTime);
+            }
+
+            // Muestra la primera al cargar
             showSlide(currentSlide);
-        }
-
-        // Cambia la imagen cada 5 segundos
-        setInterval(nextSlide, 5000);
-
-        // Muestra la primera imagen al cargar
-        showSlide(currentSlide);
+        })();
     </script>
 </body>
 </html>

@@ -33,10 +33,10 @@
         body.dark .section, body.dark .hero { background: #2C2C2C; box-shadow: var(--shadow-soft); }
         body.dark .info-item { background: #3A3A3A; }
 
-        /* Header - Minimalist with subtle slide-in */
+        /* Header - Minimalist with subtle slide-in (base para desktop) */
         .header { 
             background: white; 
-            padding: 5px 20px; /* Reducido para mobile */
+            padding: 5px 30px; 
             display: flex; 
             justify-content: flex-start; 
             align-items: center; 
@@ -52,19 +52,19 @@
             to { transform: translateY(0); opacity: 1; }
         }
         .logo { 
-            max-width: 80px; /* Más pequeño en mobile */
+            max-width: 100px; 
             height: auto; 
             transition: transform 0.3s var(--ease-liquid);
         }
         .logo:hover { transform: scale(1.05); }
 
-        /* Hero - Parallax background + Kinetic lettering */
+        /* Hero - Parallax background + Kinetic lettering (base para desktop) */
         .hero { 
-            padding: 10px 15px 25px; /* Padding reducido para mobile */
+            padding: 10px 20px 30px; 
             text-align: center; 
             background: linear-gradient(to bottom, #FFF, var(--bg-light)); 
             box-shadow: var(--shadow-soft); 
-            margin-bottom: 30px; /* Reducido */
+            margin-bottom: 40px; 
             margin-top: 0;
             position: relative;
             overflow: hidden;
@@ -83,11 +83,11 @@
         }
         .hero.animate::before { transform: translateY(0); }
         .hero h1 { 
-            margin: 0 0 15px; /* Reducido margen inferior */
+            margin: 0 0 20px; 
             color: var(--primary-blue); 
-            font-size: clamp(24px, 6vw, 40px); /* Más fluido para mobile */
+            font-size: clamp(32px, 5vw, 48px); /* Fluid typography */
             font-weight: 100; 
-            letter-spacing: 1px; /* Menos espaciado en mobile */
+            letter-spacing: 2px; 
             text-transform: uppercase;
             position: relative;
             display: inline-block;
@@ -105,18 +105,17 @@
         .hero.animate h1::after { width: 100%; left: 0; }
         .hero .info-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Mínimo más pequeño para mobile */
-            gap: 15px; /* Gap reducido */
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 25px; 
             max-width: 1200px; 
-            margin: 0 auto 20px; /* Margen reducido */
+            margin: 0 auto 30px; 
         }
         .hero .info-item { 
             background: white; 
-            padding: 15px; /* Padding reducido */
+            padding: 20px; 
             border-radius: 12px; 
             box-shadow: var(--shadow-soft); 
             font-weight: 300; 
-            font-size: 0.9em; /* Texto más pequeño */
             transition: all 0.4s var(--ease-liquid);
             position: relative;
             overflow: hidden;
@@ -143,10 +142,10 @@
             margin-bottom: 5px; 
         }
 
-        /* Gallery - Enhanced with liquid motion and micro-interactions, touch-friendly */
+        /* Gallery - Enhanced with liquid motion and micro-interactions (base para desktop) */
         .gallery { 
             max-width: 1200px; 
-            margin: 0 auto 30px; /* Reducido */
+            margin: 0 auto 40px; 
             position: relative; 
             overflow: hidden; 
             border-radius: 20px; 
@@ -155,9 +154,9 @@
         .gallery h2 { 
             text-align: center; 
             color: var(--primary-blue); 
-            font-size: 24px; /* Más pequeño en mobile */
+            font-size: 28px; 
             font-weight: 300; 
-            margin-bottom: 15px; /* Reducido */
+            margin-bottom: 20px; 
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.8s var(--ease-liquid);
@@ -169,7 +168,7 @@
         }
         .carousel img { 
             width: 100%; 
-            height: 300px; /* Reducido para mobile por defecto */
+            height: 500px; 
             object-fit: cover; 
             flex-shrink: 0; 
             border-radius: 20px; 
@@ -194,13 +193,11 @@
             background: rgba(0,51,102,0.6); /* Slightly more opaque for modern depth */
             color: white; 
             border: none; 
-            padding: 20px; /* Más grande para touch en mobile */
+            padding: 15px; 
             cursor: pointer; 
             font-size: 24px; 
             transition: all 0.3s var(--ease-liquid);
             border-radius: 50%;
-            min-width: 50px; /* Asegura touch target mínimo */
-            min-height: 50px;
         }
         .carousel-btn:hover { 
             background: var(--accent-orange); 
@@ -225,11 +222,11 @@
             transform: scale(1.2);
         }
 
-        /* Sections - Scroll-triggered kinetic animations */
+        /* Sections - Scroll-triggered kinetic animations (base para desktop) */
         .section { 
             max-width: 1200px; 
-            margin: 0 auto 30px; /* Reducido */
-            padding: 25px 15px; /* Padding reducido para mobile */
+            margin: 0 auto 40px; 
+            padding: 40px; 
             background: white; 
             border-radius: 20px; 
             box-shadow: var(--shadow-soft); 
@@ -243,33 +240,32 @@
         }
         .section h2 { 
             color: var(--primary-blue); 
-            font-size: 24px; /* Más pequeño */
+            font-size: 28px; 
             font-weight: 300; 
-            margin-bottom: 20px; /* Reducido */
+            margin-bottom: 30px; 
             text-align: center; 
         }
         .description p { 
             font-weight: 300; 
-            font-size: 16px; /* Ligeramente reducido */
+            font-size: 18px; 
             text-align: center; 
             max-width: 800px; 
             margin: 0 auto; 
         }
         .features-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ajustado para mobile */
-            gap: 15px; /* Gap reducido */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
             /* Kinetic grid: staggered animation */
         }
         .feature-item { 
             background: var(--bg-light); 
-            padding: 15px; /* Reducido */
+            padding: 20px; 
             border-radius: 12px; 
             text-align: center; 
             transition: all 0.4s var(--ease-liquid);
             position: relative;
             overflow: hidden;
-            font-size: 0.95em;
         }
         .feature-item::before {
             content: '';
@@ -293,12 +289,12 @@
             margin-bottom: 5px; 
         }
 
-        /* Footer - Subtle fade */
+        /* Footer - Subtle fade (base para desktop) */
         .footer { 
             background: white; 
             color: var(--text-dark); 
             text-align: center; 
-            padding: 30px 15px; /* Reducido */
+            padding: 40px 20px; 
             border-top: 1px solid var(--border-light); 
             box-shadow: var(--shadow-soft); 
         }
@@ -310,7 +306,7 @@
         .footer a:hover { text-decoration: underline; }
         .logos { margin-top: 20px; }
         .logos img { 
-            width: 100px; /* Más pequeño en mobile */
+            width: 120px; 
             filter: brightness(1.2); 
             transition: transform 0.3s var(--ease-liquid); 
         }
@@ -321,31 +317,101 @@
             .section, .hero h1, .gallery h2 { transition: all 0.8s var(--ease-liquid); }
         }
 
-        /* Media queries mejoradas para mobile-first */
+        /* Mejoras específicas para mobile (solo cambian en <=768px) */
         @media (max-width: 768px) { 
+            .header { padding: 5px 16px; } 
+            .logo { max-width: 80px; }
+            .hero { 
+                padding: 8px 16px 24px; 
+                margin-bottom: 24px; 
+            }
             .hero h1 { 
                 font-size: 28px; 
-                letter-spacing: 0.5px; /* Aún más ajustado */
-            } 
-            .carousel img { height: 250px; } /* Aún más reducido para pantallas pequeñas */
-            .features-grid { 
-                grid-template-columns: 1fr; /* Siempre stack en mobile */
-                gap: 10px;
+                letter-spacing: 1px; 
+                margin-bottom: 16px;
             }
-            .header { padding: 5px 15px; }
             .hero .info-grid { 
-                grid-template-columns: 1fr; /* Stack vertical en mobile para mejor legibilidad */
-                gap: 10px;
+                grid-template-columns: 1fr; 
+                gap: 12px; 
+                margin-bottom: 20px; 
             }
-            .section { padding: 20px 10px; } /* Más compacto */
-            .gallery h2, .section h2 { font-size: 22px; }
-            .carousel-btn { padding: 15px; min-width: 45px; min-height: 45px; } /* Touch targets mínimos 44px */
+            .hero .info-item { 
+                padding: 16px; 
+                font-size: 14px; 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+            }
+            .hero .info-item strong { 
+                margin-bottom: 0; 
+                flex: 0 0 auto; 
+            }
+            .hero .info-item::after { /* Ajuste para shimmer en flex */
+                content: '';
+                flex: 1;
+                margin-left: 8px;
+            }
+            .carousel img { height: 280px; } 
+            .gallery { 
+                max-width: 100%; 
+                margin: 0 auto 24px; 
+                border-radius: 0; 
+            }
+            .gallery h2 { 
+                font-size: 24px; 
+                margin-bottom: 16px; 
+            }
+            .carousel-btn { 
+                padding: 16px; 
+                min-width: 48px; 
+                min-height: 48px; 
+            }
+            .carousel-dots { 
+                margin-top: 8px; 
+            }
+            .dot { 
+                width: 10px; 
+                height: 10px; 
+                margin: 0 4px; 
+            }
+            .section { 
+                max-width: 100%; 
+                margin: 0 auto 24px; 
+                padding: 24px 16px; 
+                border-radius: 16px; 
+            }
+            .section h2 { 
+                font-size: 24px; 
+                margin-bottom: 20px; 
+            }
+            .description p { 
+                font-size: 16px; 
+                text-align: left; 
+                max-width: 100%; 
+            }
+            .features-grid { 
+                grid-template-columns: 1fr; 
+                gap: 12px; 
+            }
+            .feature-item { 
+                padding: 16px; 
+                font-size: 15px; 
+            }
+            .feature-item:hover { 
+                transform: translateY(-3px); /* Sin rotate en mobile */
+            }
+            .footer { 
+                padding: 24px 16px; 
+                font-size: 14px; 
+            }
+            .logos img { width: 100px; }
         }
 
         @media (max-width: 480px) { 
-            .logo { max-width: 70px; }
-            .hero { padding: 5px 10px 20px; }
-            .hero .info-item { padding: 12px; font-size: 0.85em; }
+            .hero h1 { font-size: 24px; }
+            .carousel img { height: 250px; }
+            .section { padding: 20px 12px; }
+            .gallery h2, .section h2 { font-size: 22px; }
         }
     </style>
 </head>
@@ -398,14 +464,16 @@
             carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
             Array.from(dots.children).forEach((dot, index) => dot.classList.toggle('active', index === currentIndex));
         }
-        // Soporte básico para swipe en mobile (opcional, usa touch events)
+        // Swipe en mobile
         let startX = 0;
-        carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-        carousel.addEventListener('touchend', e => {
-            let endX = e.changedTouches[0].clientX;
-            if (startX - endX > 50) moveCarousel(1); // Swipe left
-            if (endX - startX > 50) moveCarousel(-1); // Swipe right
-        });
+        if (window.innerWidth <= 768) {
+            carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+            carousel.addEventListener('touchend', e => {
+                let endX = e.changedTouches[0].clientX;
+                if (startX - endX > 50) moveCarousel(1);
+                if (endX - startX > 50) moveCarousel(-1);
+            });
+        }
     </script>
     {% endif %}
     

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - {{ item.codigo }} | PROCASA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary-blue: #003366; 
+            --accent-orange: #FF6600; 
+            --bg-light: #F8F9FA; 
+            --bg-dark: #1A1A1A; 
+            --text-dark: #333; 
+            --text-light: #FFF; 
+            --border-light: #E0E0E0; 
+            --shadow-soft: 0 8px 32px rgba(0,0,0,0.1); 
+            --shadow-glow: 0 0 20px rgba(255,102,0,0.2);
+            --ease-liquid: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Liquid motion easing for 2025 trends */
+            --ease-kinetic: cubic-bezier(0.23, 1, 0.320, 1); /* Kinetic smooth */
+        }
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-light); 
+            color: var(--text-dark); 
+            line-height: 1.6; 
+            overflow-x: hidden; 
+            transition: background-color 0.3s var(--ease-liquid); 
+        }
+        /* Dark Mode Option */
+        body.dark { background-color: var(--bg-dark); color: var(--text-light); }
+        body.dark .section, body.dark .hero { background: #2C2C2C; box-shadow: var(--shadow-soft); }
+        body.dark .info-item { background: #3A3A3A; }
+
+        /* Header - Minimalist with subtle slide-in */
+        .header { 
+            background: white; 
+            padding: 5px 20px; /* Reducido para mobile */
+            display: flex; 
+            justify-content: flex-start; 
+            align-items: center; 
+            box-shadow: var(--shadow-soft); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            margin-bottom: 0;
+            animation: slideDown 0.6s var(--ease-kinetic);
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .logo { 
+            max-width: 80px; /* Más pequeño en mobile */
+            height: auto; 
+            transition: transform 0.3s var(--ease-liquid);
+        }
+        .logo:hover { transform: scale(1.05); }
+
+        /* Hero - Parallax background + Kinetic lettering */
+        .hero { 
+            padding: 10px 15px 25px; /* Padding reducido para mobile */
+            text-align: center; 
+            background: linear-gradient(to bottom, #FFF, var(--bg-light)); 
+            box-shadow: var(--shadow-soft); 
+            margin-bottom: 30px; /* Reducido */
+            margin-top: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(255,102,0,0.1) 0%, transparent 50%);
+            opacity: 0.5;
+            transform: translateY(100px);
+            transition: transform 0.6s var(--ease-liquid);
+        }
+        .hero.animate::before { transform: translateY(0); }
+        .hero h1 { 
+            margin: 0 0 15px; /* Reducido margen inferior */
+            color: var(--primary-blue); 
+            font-size: clamp(24px, 6vw, 40px); /* Más fluido para mobile */
+            font-weight: 100; 
+            letter-spacing: 1px; /* Menos espaciado en mobile */
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+        .hero h1::after {
+            content: '';
+            position: absolute;
+            bottom: -3px; /* Ajustado: de -10px a -3px para que quede más cerca del texto */
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent-orange);
+            transition: width 0.6s var(--ease-liquid), left 0.6s var(--ease-liquid);
+        }
+        .hero.animate h1::after { width: 100%; left: 0; }
+        .hero .info-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Mínimo más pequeño para mobile */
+            gap: 15px; /* Gap reducido */
+            max-width: 1200px; 
+            margin: 0 auto 20px; /* Margen reducido */
+        }
+        .hero .info-item { 
+            background: white; 
+            padding: 15px; /* Padding reducido */
+            border-radius: 12px; 
+            box-shadow: var(--shadow-soft); 
+            font-weight: 300; 
+            font-size: 0.9em; /* Texto más pequeño */
+            transition: all 0.4s var(--ease-liquid);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero .info-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s var(--ease-kinetic);
+        }
+        .hero .info-item:hover { 
+            transform: translateY(-8px) scale(1.02); 
+            box-shadow: var(--shadow-glow);
+        }
+        .hero .info-item:hover::before { left: 100%; } /* Shimmer effect */
+        .hero .info-item strong { 
+            color: var(--accent-orange); 
+            font-weight: 400; 
+            display: block; 
+            margin-bottom: 5px; 
+        }
+
+        /* Gallery - Enhanced with liquid motion and micro-interactions, touch-friendly */
+        .gallery { 
+            max-width: 1200px; 
+            margin: 0 auto 30px; /* Reducido */
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-soft); 
+        }
+        .gallery h2 { 
+            text-align: center; 
+            color: var(--primary-blue); 
+            font-size: 24px; /* Más pequeño en mobile */
+            font-weight: 300; 
+            margin-bottom: 15px; /* Reducido */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s var(--ease-liquid);
+        }
+        .gallery.animate h2 { opacity: 1; transform: translateY(0); }
+        .carousel { 
+            display: flex; 
+            transition: transform 0.8s var(--ease-liquid); /* Slower for liquid feel */
+        }
+        .carousel img { 
+            width: 100%; 
+            height: 300px; /* Reducido para mobile por defecto */
+            object-fit: cover; 
+            flex-shrink: 0; 
+            border-radius: 20px; 
+            transition: all 0.5s var(--ease-kinetic);
+            cursor: pointer;
+        }
+        .carousel img:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.1) contrast(1.05); /* Subtle glow */
+            box-shadow: var(--shadow-glow);
+        }
+        .carousel-controls { 
+            position: absolute; 
+            top: 50%; 
+            left: 0; 
+            right: 0; 
+            display: flex; 
+            justify-content: space-between; 
+            transform: translateY(-50%); 
+        }
+        .carousel-btn { 
+            background: rgba(0,51,102,0.6); /* Slightly more opaque for modern depth */
+            color: white; 
+            border: none; 
+            padding: 20px; /* Más grande para touch en mobile */
+            cursor: pointer; 
+            font-size: 24px; 
+            transition: all 0.3s var(--ease-liquid);
+            border-radius: 50%;
+            min-width: 50px; /* Asegura touch target mínimo */
+            min-height: 50px;
+        }
+        .carousel-btn:hover { 
+            background: var(--accent-orange); 
+            transform: scale(1.2);
+        }
+        .carousel-dots { 
+            text-align: center; 
+            margin-top: 10px; 
+        }
+        .dot { 
+            display: inline-block; 
+            width: 12px; 
+            height: 12px; 
+            background: var(--border-light); 
+            border-radius: 50%; 
+            margin: 0 5px; 
+            cursor: pointer; 
+            transition: all 0.3s var(--ease-liquid);
+        }
+        .dot.active, .dot:hover { 
+            background: var(--accent-orange); 
+            transform: scale(1.2);
+        }
+
+        /* Sections - Scroll-triggered kinetic animations */
+        .section { 
+            max-width: 1200px; 
+            margin: 0 auto 30px; /* Reducido */
+            padding: 25px 15px; /* Padding reducido para mobile */
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-soft); 
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s var(--ease-liquid);
+        }
+        .section.animate { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        .section h2 { 
+            color: var(--primary-blue); 
+            font-size: 24px; /* Más pequeño */
+            font-weight: 300; 
+            margin-bottom: 20px; /* Reducido */
+            text-align: center; 
+        }
+        .description p { 
+            font-weight: 300; 
+            font-size: 16px; /* Ligeramente reducido */
+            text-align: center; 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ajustado para mobile */
+            gap: 15px; /* Gap reducido */
+            /* Kinetic grid: staggered animation */
+        }
+        .feature-item { 
+            background: var(--bg-light); 
+            padding: 15px; /* Reducido */
+            border-radius: 12px; 
+            text-align: center; 
+            transition: all 0.4s var(--ease-liquid);
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95em;
+        }
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-orange);
+            transition: left 0.6s var(--ease-kinetic);
+        }
+        .feature-item:hover { 
+            box-shadow: var(--shadow-glow); 
+            transform: translateY(-5px) rotate(1deg); /* Subtle tilt for dynamism */
+        }
+        .feature-item:hover::before { left: 100%; }
+        .feature-item strong { 
+            color: var(--accent-orange); 
+            display: block; 
+            font-weight: 400; 
+            margin-bottom: 5px; 
+        }
+
+        /* Footer - Subtle fade */
+        .footer { 
+            background: white; 
+            color: var(--text-dark); 
+            text-align: center; 
+            padding: 30px 15px; /* Reducido */
+            border-top: 1px solid var(--border-light); 
+            box-shadow: var(--shadow-soft); 
+        }
+        .footer a { 
+            color: var(--primary-blue); 
+            text-decoration: none; 
+            font-weight: 300; 
+        }
+        .footer a:hover { text-decoration: underline; }
+        .logos { margin-top: 20px; }
+        .logos img { 
+            width: 100px; /* Más pequeño en mobile */
+            filter: brightness(1.2); 
+            transition: transform 0.3s var(--ease-liquid); 
+        }
+        .logos img:hover { transform: scale(1.1); }
+
+        /* Scroll-triggered animations (2025 standard with Intersection Observer) */
+        @media (prefers-reduced-motion: no-preference) {
+            .section, .hero h1, .gallery h2 { transition: all 0.8s var(--ease-liquid); }
+        }
+
+        /* Media queries mejoradas para mobile-first */
+        @media (max-width: 768px) { 
+            .hero h1 { 
+                font-size: 28px; 
+                letter-spacing: 0.5px; /* Aún más ajustado */
+            } 
+            .carousel img { height: 250px; } /* Aún más reducido para pantallas pequeñas */
+            .features-grid { 
+                grid-template-columns: 1fr; /* Siempre stack en mobile */
+                gap: 10px;
+            }
+            .header { padding: 5px 15px; }
+            .hero .info-grid { 
+                grid-template-columns: 1fr; /* Stack vertical en mobile para mejor legibilidad */
+                gap: 10px;
+            }
+            .section { padding: 20px 10px; } /* Más compacto */
+            .gallery h2, .section h2 { font-size: 22px; }
+            .carousel-btn { padding: 15px; min-width: 45px; min-height: 45px; } /* Touch targets mínimos 44px */
+        }
+
+        @media (max-width: 480px) { 
+            .logo { max-width: 70px; }
+            .hero { padding: 5px 10px 20px; }
+            .hero .info-item { padding: 12px; font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo PROCASA" class="logo">
+    </header>
+    
+    <section class="hero">
+        <h1>{{ item.titulo }}</h1>
+        <div class="info-grid">
+            <div class="info-item"><strong>Precio:</strong> {{ (item.precio_uf|replace(',', '.')|float / 1000)|round(3) }} UF / ${{ (item.precio_clp|replace(',', '')|int)|string }}</div>
+            <div class="info-item"><strong>Tipo:</strong> {{ item.tipo_propiedad }}</div>
+            <div class="info-item"><strong>Ubicación:</strong> {{ item.comuna }}, {{ item.region }}</div>
+            <div class="info-item"><strong>Código Interno:</strong> {{ item.codigo }}</div>
+        </div>
+    </section>
+    
+    {% if item.imagenes %}
+    <section class="gallery">
+        <h2>Galería</h2>
+        <div class="carousel" id="carousel" style="transform: translateX(0%);">
+            {% for img in item.imagenes %}
+                <img src="{{ img }}" alt="Imagen {{ loop.index }}" loading="lazy">
+            {% endfor %}
+        </div>
+        <div class="carousel-controls">
+            <button class="carousel-btn prev" onclick="moveCarousel(-1)">◀</button>
+            <button class="carousel-btn next" onclick="moveCarousel(1)">▶</button>
+        </div>
+        <div class="carousel-dots" id="dots"></div>
+    </section>
+    <script>
+        let currentIndex = 0;
+        const carousel = document.getElementById('carousel');
+        const images = carousel.children.length;
+        const dots = document.getElementById('dots');
+        for (let i = 0; i < images; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'dot';
+            dot.onclick = () => { currentIndex = i; updateCarousel(); };
+            dots.appendChild(dot);
+        }
+        dots.children[0].classList.add('active');
+        function moveCarousel(direction) {
+            currentIndex = (currentIndex + direction + images) % images;
+            updateCarousel();
+        }
+        function updateCarousel() {
+            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+            Array.from(dots.children).forEach((dot, index) => dot.classList.toggle('active', index === currentIndex));
+        }
+        // Soporte básico para swipe en mobile (opcional, usa touch events)
+        let startX = 0;
+        carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        carousel.addEventListener('touchend', e => {
+            let endX = e.changedTouches[0].clientX;
+            if (startX - endX > 50) moveCarousel(1); // Swipe left
+            if (endX - startX > 50) moveCarousel(-1); // Swipe right
+        });
+    </script>
+    {% endif %}
+    
+    <section class="section description">
+        <h2>Descripción</h2>
+        <p>{{ item.descripcion }}</p>
+    </section>
+    
+    <section class="section features">
+        <h2>Características</h2>
+        <div class="features-grid">
+            <div class="feature-item"><strong>Dormitorios</strong> {{ item.dormitorios }}</div>
+            <div class="feature-item"><strong>Baños</strong> {{ item.banos }}</div>
+            <div class="feature-item"><strong>Estacionamientos</strong> {{ item.estacionamientos }}</div>
+            <div class="feature-item"><strong>M² Construidos</strong> {{ item.m2_construidos }}</div>
+            <div class="feature-item"><strong>Piscina</strong> {{ item.piscina }}</div>
+            <div class="feature-item"><strong>Tipo Operación</strong> {{ item.tipo_operacion }}</div>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <p>&copy; 2025 PROCASA - Propiedades <a href="https://www.procasa.cl">www.procasa.cl</a></p>
+        <div class="logos">
+            {% for logo in logos %}
+                <img src="{{ url_for('static', filename=logo) }}" alt="Logo PROCASA">
+            {% endfor %}
+        </div>
+    </footer>
+
+    <!-- Script para formatear precio y animaciones scroll (micro-interactions 2025) -->
+    <script>
+        // Precio CLP
+        document.addEventListener('DOMContentLoaded', function() {
+            const priceItems = document.querySelectorAll('.info-item');
+            priceItems.forEach(function(item) {
+                if (item.textContent.includes('Precio:')) {
+                    const fullText = item.innerHTML;
+                    const parts = fullText.split('/ $');
+                    if (parts.length > 1) {
+                        const clpRaw = parts[1].trim();
+                        const clpNum = parseInt(clpRaw.replace(/[^\d]/g, ''));
+                        if (!isNaN(clpNum)) {
+                            const formatted = clpNum.toLocaleString('de-DE').replace(/,/g, '.');
+                            item.innerHTML = parts[0] + '/ $' + formatted;
+                        }
+                    }
+                }
+            });
+
+            // Scroll animations con Intersection Observer
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.section, .hero, .gallery').forEach(el => {
+                observer.observe(el);
+            });
+            document.querySelector('.hero h1').classList.add('animate'); // Hero initial
+        });
+    </script>
+</body>
+</html>

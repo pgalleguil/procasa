@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
 from pymongo import MongoClient
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -34,6 +34,7 @@ client.admin.command('ismaster')  # probar conexión
 
 db = client['URLS']
 yapo_collection = db['Yapo']
+universo_cartera_collection = db['universo_cartera']  # Nombre exacto en minúsculas
 users_collection = db['users']
 
 # ================================
@@ -99,6 +100,82 @@ def validate_input(text, max_len=50, allowed_chars=None):
 @app.route('/')
 def index():
     return redirect(url_for('login'))
+
+# ================================
+# 👁️ DETALLE PROPIEDAD CARTERA POR CÓDIGO (SIN AUTENTIFICACIÓN - ÚNICA RUTA PÚBLICA)
+# ================================
+@app.route('/cartera/<codigo>')
+def cartera_detail(codigo):
+    # Limpia flashes irrelevantes consumiéndolos
+    get_flashed_messages(with_categories=True)
+    try:
+        if not validate_input(codigo, 20):
+            return render_template('error_public.html', message='Código inválido.', logos=load_logos(), title="Error PROCASA")
+        
+        print(f"Buscando por codigo: {codigo}")  # Debug print
+        
+        # Debug: Cuenta docs con ese codigo como string
+        count_str = universo_cartera_collection.count_documents({'codigo': codigo})
+        print(f"Count for str '{codigo}': {count_str}")
+        
+        item = None
+        if count_str > 0:
+            item = universo_cartera_collection.find_one(
+                {'codigo': codigo},
+                {'codigo': 1, 'titulo': 1, 'tipo_propiedad': 1, 'precio_uf': 1, 'comuna': 1, 
+                 'descripcion': 1, 'scraped_at': 1, 'imagenes': 1, 'asesor_comercial': 1,
+                 'banos': 1, 'dormitorios': 1, 'estacionamientos': 1, 'm2_construidos': 1,
+                 'piscina': 1, 'region': 1, 'tipo_operacion': 1, 'precio_clp': 1, 'oficina': 1}
+            )
+        else:
+            # Intenta como int
+            try:
+                int_codigo = int(codigo)
+                print(f"Intentando como int: {int_codigo}")  # Debug
+                count_int = universo_cartera_collection.count_documents({'codigo': int_codigo})
+                print(f"Count for int {int_codigo}: {count_int}")
+                if count_int > 0:
+                    item = universo_cartera_collection.find_one(
+                        {'codigo': int_codigo},
+                        {'codigo': 1, 'titulo': 1, 'tipo_propiedad': 1, 'precio_uf': 1, 'comuna': 1, 
+                         'descripcion': 1, 'scraped_at': 1, 'imagenes': 1, 'asesor_comercial': 1,
+                         'banos': 1, 'dormitorios': 1, 'estacionamientos': 1, 'm2_construidos': 1,
+                         'piscina': 1, 'region': 1, 'tipo_operacion': 1, 'precio_clp': 1, 'oficina': 1}
+                    )
+            except ValueError:
+                print("Código no convertible a int")  # Debug
+        
+        if not item:
+            print(f"No encontrado: {codigo} (ni como str ni int)")  # Debug print
+            return render_template('error_public.html', message='Propiedad no encontrada en la cartera.', logos=load_logos(), title="Error PROCASA")
+        
+        print(f"Item encontrado: {item.get('titulo', 'Sin título')[:50]}...")  # Debug print
+        print(f"Tipo de codigo en DB: {type(item.get('codigo'))}")  # Debug tipo
+        processed = dict(item)
+        processed['_id_str'] = str(processed.pop('_id', ''))
+        processed['titulo'] = processed.get('titulo', 'Sin título')
+        processed['tipo_propiedad'] = processed.get('tipo_propiedad', 'General')
+        if 'descripcion' in processed and isinstance(processed['descripcion'], str):
+            processed['descripcion'] = processed['descripcion']
+        if 'scraped_at' in processed:
+            try:
+                if isinstance(processed['scraped_at'], str):
+                    processed['date_formatted'] = datetime.fromisoformat(
+                        processed['scraped_at'].replace('Z', '+00:00')
+                    ).strftime('%d/%m/%Y %H:%M')
+                else:
+                    processed['date_formatted'] = processed['scraped_at'].strftime('%d/%m/%Y %H:%M')
+            except:
+                processed['date_formatted'] = 'Sin fecha'
+        
+        logos = load_logos()
+        return render_template('cartera_detail.html', item=processed, logos=logos, title="Detalle Propiedad PROCASA")
+        
+    except Exception as e:
+        print(f"Error cartera_detail completo: {e}")  # Debug más detallado
+        import traceback
+        print(traceback.format_exc())  # Stack trace completo
+        return render_template('error_public.html', message='Error cargando detalles de la propiedad.', logos=load_logos(), title="Error PROCASA")
 
 # ================================
 # 🔐 LOGIN TRADICIONAL
@@ -185,7 +262,7 @@ def dashboard():
             }}
         ]
         
-        data = list(yapo_collection.aggregate(pipeline, maxTimeMS=10000))
+        data = list(yapo_collection.aggregate(pipeline, max_time_ms=10000))  # Corregido: snake_case
         total_pages = (total_items + per_page - 1) // per_page
         
         processed_data = []
@@ -244,7 +321,7 @@ def detail(id):
             {'_id': ObjectId(id)},
             {'title': 1, 'category': 1, 'price': 1, 'location': 1, 
              'description': 1, 'date': 1, 'images': 1},
-            maxTimeMS=5000
+            max_time_ms=5000  # Corregido: snake_case
         )
         
         if not item:
@@ -256,7 +333,7 @@ def detail(id):
         processed['title'] = processed.get('title', 'Sin título')[:100]
         processed['category'] = processed.get('category', 'General')
         if 'description' in processed and isinstance(processed['description'], str):
-            processed['description'] = processed['description'][:500]
+            processed['description'] = processed['descripcion'][:500]
         if 'date' in processed:
             try:
                 if isinstance(processed['date'], str):
@@ -310,7 +387,14 @@ def create_admin_if_needed():
 if __name__ == '__main__':
     print("🚀 Iniciando app...")
     create_admin_if_needed()
+    # Debug: Print first doc's codigo
+    sample = universo_cartera_collection.find_one({}, {'codigo': 1})
+    if sample:
+        print(f"Sample codigo: {sample['codigo']} (type: {type(sample['codigo'])})")
+    else:
+        print("No sample doc in universo_cartera")
     port = int(os.environ.get('PORT', 5000))
     host = '0.0.0.0' if os.getenv('PORT') else '127.0.0.1'
     print(f"🌐 http://{host}:{port}")
+    print(f"🔗 Ejemplo Detalle Público: http://{host}:{port}/cartera/49022")
     app.run(debug=True, host=host, port=port)

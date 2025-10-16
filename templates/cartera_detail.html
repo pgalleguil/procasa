@@ -337,20 +337,28 @@
             }
             .hero .info-item { 
                 padding: 16px; 
-                font-size: 14px; 
+                font-size: 16px; /* Aumentado para mejor legibilidad y fitting */
                 display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
+                flex-direction: column; /* Column para que el precio quepa sin overflow */
+                align-items: flex-start; 
+                gap: 4px; /* Espacio entre label y value */
+                text-align: left; /* Alineado izquierda para naturalidad */
             }
             .hero .info-item strong { 
                 margin-bottom: 0; 
-                flex: 0 0 auto; 
+                font-size: 15px; /* Ligeramente más pequeño para label */
             }
-            .hero .info-item::after { /* Ajuste para shimmer en flex */
+            .hero .info-item::after { /* Shimmer ajustado para column */
                 content: '';
-                flex: 1;
-                margin-left: 8px;
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                transition: left 0.6s var(--ease-kinetic);
             }
+            .hero .info-item:hover::after { left: 100%; }
             .carousel img { height: 280px; } 
             .gallery { 
                 max-width: 100%; 
@@ -365,6 +373,7 @@
                 padding: 16px; 
                 min-width: 48px; 
                 min-height: 48px; 
+                font-size: 20px; /* Ajustado para touch */
             }
             .carousel-dots { 
                 margin-top: 8px; 
@@ -395,6 +404,9 @@
             }
             .feature-item { 
                 padding: 16px; 
+                font-size: 16px; /* Uniformizado */
+            }
+            .feature-item strong { 
                 font-size: 15px; 
             }
             .feature-item:hover { 
@@ -412,6 +424,10 @@
             .carousel img { height: 250px; }
             .section { padding: 20px 12px; }
             .gallery h2, .section h2 { font-size: 22px; }
+            .hero .info-item { 
+                font-size: 15px; 
+                padding: 14px; 
+            }
         }
     </style>
 </head>
@@ -464,16 +480,25 @@
             carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
             Array.from(dots.children).forEach((dot, index) => dot.classList.toggle('active', index === currentIndex));
         }
-        // Swipe en mobile
+        // Swipe en mobile (mejorado: siempre activo, con preventDefault para evitar scroll)
         let startX = 0;
-        if (window.innerWidth <= 768) {
-            carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-            carousel.addEventListener('touchend', e => {
-                let endX = e.changedTouches[0].clientX;
-                if (startX - endX > 50) moveCarousel(1);
-                if (endX - startX > 50) moveCarousel(-1);
-            });
-        }
+        let startY = 0;
+        carousel.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            e.preventDefault();
+        }, { passive: false });
+        carousel.addEventListener('touchend', e => {
+            let endX = e.changedTouches[0].clientX;
+            let endY = e.changedTouches[0].clientY;
+            let diffX = startX - endX;
+            let diffY = Math.abs(startY - endY);
+            if (Math.abs(diffX) > 50 && diffY < 50) { // Horizontal swipe only
+                if (diffX > 0) moveCarousel(1);
+                else moveCarousel(-1);
+            }
+            e.preventDefault();
+        }, { passive: false });
     </script>
     {% endif %}
     
